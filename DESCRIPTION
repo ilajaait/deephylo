@@ -1,0 +1,17 @@
+Package: deephylo
+Title: Infer Parameters from Phylogenies with Deep-Learning
+Version: 0.0.0.9000
+Authors@R: 
+    person("Ismaël", "Lajaaiti", , "ismael.lajaaiti@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6138-8895"))
+Description: Infer parameters from diversification models (Constant Rate
+  Birth-Death and Binary State Speciation and Extinction) with different 
+  neural network architectures (Deep, Convolutional, Recurrent and Graph 
+  Neural Network)
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
