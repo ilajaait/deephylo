@@ -16,17 +16,18 @@ knitr::opts_chunk$set(
 # deephylo
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/ilajaait/deephylo/workflows/R-CMD-check/badge.svg)](https://github.com/ilajaait/deephylo/actions)
 <!-- badges: end -->
 
-The goal of deephylo is to infer parameters from phylogenies with deep-learning
-methods.
+The goal of deephylo is to infer parameters from phylogeny with deep-learning.
 
 ## Installation
 
-You can install the development version of deephylo like so:
+You can install the development version of deephylo from [GitHub](https://github.com/) with:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+devtools::install_github("ilajaait/deephylo")
 ```
 
 ## Example
