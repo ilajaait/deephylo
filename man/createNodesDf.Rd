@@ -10,7 +10,7 @@ createNodesDf(phylo)
 \item{phylo}{phylogeny (ape format)}
 }
 \value{
-data.frame
+dataframe
 }
 \description{
 Create a dataframe to fill with node attributes. Rows correspond to nodes,
