@@ -4,10 +4,12 @@
 \alias{fillNodesIndex}
 \title{Fill the "index" column of node dataframe}
 \usage{
-fillNodesIndex(df.nodes)
+fillNodesIndex(df.nodes, phylo)
 }
 \arguments{
 \item{df.nodes}{dataframe created by \code{\link{createNodesDf}}}
+
+\item{phylo}{phylogeny (ape format)}
 }
 \value{
 dataframe

@@ -15,7 +15,7 @@ fillNodesPart(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "part" column of the nodes dataframe with corresponding phylogeny
+Fill the "part" column of the node dataframe with corresponding phylogeny
 part. The phylogeny is cut in 3 equals regarding time.
 Let's be D>0 the phylogeny height (maximal distance to the root),
 then nodes with distance to the root d such that:

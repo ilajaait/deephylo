@@ -15,7 +15,7 @@ fillNodesDist(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "dist" column of the nodes dataframe with corresponding distances
+Fill the "dist" column of the node dataframe with corresponding distances
 to root.
 }
 \seealso{

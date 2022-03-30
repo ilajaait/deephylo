@@ -15,7 +15,7 @@ fillNodesColless(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "colless" column of the nodes dataframe with corresponding colless
+Fill the "colless" column of the node dataframe with corresponding colless
 score. The colless score is equal to the absolute difference of the number
 of tips on the left and right side of the node.
 For more detail, see

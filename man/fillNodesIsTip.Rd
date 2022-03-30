@@ -15,7 +15,7 @@ fillNodesIsTip(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "istip" column of the nodes dataframe with corresponding logicals.
+Fill the "istip" column of the node dataframe with corresponding logicals.
 If the node is a tip \code{TRUE}, else \code{FALSE}.
 }
 \seealso{

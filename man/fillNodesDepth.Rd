@@ -15,7 +15,7 @@ fillNodesDepth(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "depth" column of the nodes dataframe with corresponding
+Fill the "depth" column of the node dataframe with corresponding
 depth. The depth is the number of edges between the node and the root.
 For instance, for the following simple phylogeny root--->--->B,
 depth(A) = 1 and depth(B) = 2

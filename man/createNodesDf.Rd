@@ -7,12 +7,11 @@
 createNodesDf(phylo)
 }
 \arguments{
-\item{phylo}{phylogeny (ape format)}
+\item{phylo}{(ape format)}
 }
 \value{
 dataframe
 }
 \description{
-Create a dataframe to fill with node attributes. Rows correspond to nodes,
-column to attributes. All cells are filled with NAs.
+Initialize and fill the node dataframe of the given phylogeny.
 }

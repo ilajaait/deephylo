@@ -15,7 +15,7 @@ fillNodesStair(df.nodes, phylo)
 dataframe
 }
 \description{
-Fill the "stair" column of the nodes dataframe with corresponding
+Fill the "stair" column of the node dataframe with corresponding
 stairecaseness. The stairecaseness is equal to the ratio of the number
 of tips on each side.
 For more detail, see

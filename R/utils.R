@@ -39,6 +39,15 @@ numberNodesInternal <- function(phylo) {
   length(phylo$tip.label) - 1
 }
 
+#' Compute number of edges of a phylogeny
+#'
+#' @param phylo (ape format)
+#'
+#' @return int
+numberEdges <- function(phylo) {
+  length(phylo$edge.length)
+}
+
 #' Compute phylogeny height
 #'
 #' @param phylo phylogeny (ape format)
