@@ -352,8 +352,6 @@ fillEdgesLength <- function(df.edges, phylo) {
 #' @param df.nodes dataframe
 #'
 #' @return dataframe
-#' @export
-#' @examples
 fillEdgesPart <- function(df.edges, df.nodes) {
   df.edges$part <- df.nodes$part[df.edges$child]
   df.edges
@@ -387,6 +385,369 @@ createEdgesDf <- function(phylo, df.nodes) {
   phylo |>
     initializeEdgesDf() |>
     fillEdgesAll(phylo, df.nodes)
+}
+
+#### end ####
+
+#### Summary statistics ####
+
+#' Compute branch lengths statistics
+#'
+#' Compute the mean, median and variance of a list of branch lengths.
+#'
+#' @param branch_length vector
+#'
+#' @return list
+#'    * `$mean`: branch lengths mean
+#'    * `$median`: branch lengths median
+#'    * `$var`: branch length variance
+getBranchLengthStats <- function(branch_length) {
+  length(branch_length) > 0 || return(list(mean = NA, median = NA, var = NA))
+  list(
+    mean = mean(branch_length),
+    median = stats::median(branch_length),
+    var = stats::var(branch_length)
+  )
+}
+
+#' Compute branch lengths summary statistics
+#'
+#' Compute the 25 summary statistics related to branch lengths listed below.
+#' A branch is external if linked to a tip, other the branch is internal.
+#' The branches are sorted in 3 parts regarding the time of the child.
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   height \tab phylogeny height\cr
+#'   mean.all \tab mean of all branch lengths\cr
+#'   median.all \tab median of all branch lengths\cr
+#'   var.all \tab variance of all branch lengths\cr
+#'   mean.ext \tab mean of external branch lengths\cr
+#'   median.ext \tab median of external branch lengths\cr
+#'   var.ext \tab variance of external branch lengths\cr
+#'   mean.int1 \tab mean of internal branch lengths of part 1\cr
+#'   median.int1 \tab median of internal branch lengths of part 1\cr
+#'   var.int1 \tab variance of internal branch lengths of part 1\cr
+#'   mean.int2 \tab mean of internal branch lengths of part 2\cr
+#'   median.int2 \tab median of internal branch lengths of part 2\cr
+#'   var.int2 \tab variance of internal branch lengths of part 2\cr
+#'   mean.int3 \tab mean of internal branch lengths of part 3\cr
+#'   median.int3 \tab median of internal branch lengths of part 3\cr
+#'   var.int3 \tab variance of internal branch lengths of part 3\cr
+#'   mean.intext1 \tab mean.int1 / mean.ext\cr
+#'   median.int1 \tab median.int1 / median.ext\cr
+#'   var.int1 \tab var.int1 / var.ext\cr
+#'   mean.intext2 \tab mean.int2 / mean.ext\cr
+#'   median.int2 \tab median.int2 / median.ext\cr
+#'   var.int2 \tab var.int2 / var.ext\cr
+#'   mean.intext3 \tab mean.int3 / mean.ext\cr
+#'   median.int3 \tab median.int3 / median.ext\cr
+#'   var.int3 \tab var.int3 / var.ext
+#' }
+#'
+#' @param df.edges dataframe
+#' @param phylo phylogeny (ape format)
+#'
+#' @return list
+#'    * `$stat.all`: statistic computed on all branch lengths
+#'    (stat is either mean, median or var)
+#'    * `$stat.ext`: statistic computed on external branch lengths only
+#'    * `$stat.inti`: statistic computed on internal branch lengths only
+#'    belonging to part i (i is either 1,2 or 3)
+#'    * `$stat.intext1`: `$stat.inti` / `$stat.ext`
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+sumStatsBranchLength <- function(df.edges, phylo) {
+
+  # Set up
+  sumstat <- list(
+    mean.all = NA, median.all = NA, var.all = NA,
+    mean.ext = NA, median.ext = NA, var.ext = NA,
+    mean.int1 = NA, median.int1 = NA, var.int1 = NA,
+    mean.int2 = NA, median.int2 = NA, var.int2 = NA,
+    mean.int3 = NA, median.int3 = NA, var.int3 = NA,
+    mean.intext1 = NA, median.intext1 = NA, var.intext1 = NA,
+    mean.intext2 = NA, median.intext2 = NA, var.intext2 = NA,
+    mean.intext3 = NA, median.intext3 = NA, var.intext3 = NA, height = NA
+  )
+  df.edges.ext <- df.edges[df.edges$isext, ] # internal edge
+  df.edges.int <- df.edges[!df.edges$isext, ] # external edge
+  branch_length.all <- df.edges$length
+  branch_length.ext <- df.edges.ext$length
+  branch_length.int1 <- df.edges.int[df.edges.int$part == 1, ]$length
+  branch_length.int2 <- df.edges.int[df.edges.int$part == 2, ]$length
+  branch_length.int3 <- df.edges.int[df.edges.int$part == 3, ]$length
+  branch_length.list <- list(
+    branch_length.all, branch_length.ext,
+    branch_length.int1, branch_length.int2, branch_length.int3
+  )
+  n <- length(branch_length.list)
+
+  # Fill sumstat for 'int', 'all' and 'int'
+  for (i in 1:n) {
+    branch_length <- branch_length.list[[i]]
+    stats <- getBranchLengthStats(branch_length)
+    sumstat[[3 * (i - 1) + 1]] <- stats$mean
+    sumstat[[3 * (i - 1) + 2]] <- stats$median
+    sumstat[[3 * (i - 1) + 3]] <- stats$var
+  }
+
+  # Fill sumstat for 'intext'
+  for (i in 1:3) {
+    for (stat_name in c("mean", "median", "var")) {
+      name.int <- paste(stat_name, ".int", i, sep = "")
+      name.intext <- paste(stat_name, ".intext", i, sep = "")
+      name.ext <- paste(stat_name, ".ext", sep = "")
+      sumstat[[name.intext]] <- sumstat[[name.int]] / sumstat[[name.ext]]
+    }
+  }
+
+  sumstat$height <- getHeight(phylo)
+
+  sumstat
+}
+
+#' Is the node in a ladder?
+#'
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#'
+#' @param phylo phylogeny (ape format)
+#' @param i node index
+#'
+#' @return logical
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+isInLadder <- function(phylo, i) {
+  !isTip(phylo, i) || return(FALSE)
+  children <- phangorn::Children(phylo, i)
+  sum(isTip(phylo, children)) == 1
+}
+
+#' Traverse a phylogeny and write ladders
+#'
+#' Traverse the phylogeny in preoder and write node indexes belonging to
+#' ladders. Nodes that don't belong to ladder are marked with `-1`.
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#'
+#' @param phylo phylogeny (ape format)
+#' @param i node index
+#' @param preorder vector
+#'
+#' @return vector with ladders
+#'
+#' @seealso \code{\link{isInLadder}}, \code{\link{getChildLeftRight}}
+writeLadders <- function(phylo, i, preorder) {
+  value <- -1
+  !isInLadder(phylo, i) || (value <- i)
+  preorder <- c(preorder, value)
+  children <- getChildLeftRight(phylo, i)
+  child.left <- children$right
+  child.right <- children$left
+  if (!is.na(child.left)) {
+    preorder <- writeLadders(phylo, child.left, preorder)
+  }
+  if (!is.na(child.right)) {
+    preorder <- writeLadders(phylo, child.right, preorder)
+  }
+  preorder
+}
+
+#' Left and right child of a node
+#'
+#' The left children is the node the further from the root, the right children
+#' is the closest to the root.
+#' If node is a tip returns NA.
+#'
+#' @param phylo phylogeny (ape format)
+#' @param i node index
+#'
+#' @return list
+#'    * `$left`: node left child
+#'    * `$right`: node right child
+getChildLeftRight <- function(phylo, i) {
+
+  # Set up
+  child <- list("left" = NA, "right" = NA)
+  !isTip(phylo, i) || return(child) # tip has no child, return NA
+  dist <- castor::get_all_distances_to_root(phylo)
+  child.disordered <- phangorn::Children(phylo, i)
+
+  if (all(isTip(phylo, child.disordered))) { # 2 tips, same distance, random
+    child$left <- child.disordered[1]
+    child$right <- child.disordered[2]
+  } else {
+    dist.child <- c(dist[child.disordered[1]], dist[child.disordered[2]])
+    child$left <- child.disordered[which(dist.child == max(dist.child))]
+    child$right <- child.disordered[which(dist.child == min(dist.child))]
+  }
+
+  child
+}
+
+#' Extract ladders from vector
+#'
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#' Ladder of size one are deleted.
+#'
+#' @param ladder vector output of \code{\link{writeLadders}}
+#'
+#' @return list
+extractLadders <- function(ladder) {
+  n <- length(ladder)
+  ladder.list <- list()
+  l <- c()
+  for (i in 1:n) {
+    x <- ladder[i]
+    if (x != -1) {
+      l <- c(l, x)
+    } else if (x == -1 & length(l) == 1) {
+      l <- c()
+    } else if (x == -1 & length(l) >= 2) {
+      ladder.list <- append(ladder.list, list(l))
+      l <- c()
+    }
+  }
+  return(ladder.list)
+}
+
+#' Get ladders of a phylogeny
+#'
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#' Ladder should be at least of size two.
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return list of ladders
+#'
+#' @seealso \code{\link{writeLadders}}, \code{\link{extractLadders}}
+getLadders <- function(phylo) {
+  root <- getRoot(phylo)
+  ladders <- writeLadders(phylo, root, c())
+  extractLadders(ladders)
+}
+
+#' Size of the largest ladder of the phylogeny normalized by the number of tips
+#'
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#' Ladder should be at least of size two.
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return numeric
+#' @seealso \code{\link{writeLadders}}, \code{\link{extractLadders}},
+#' \code{\link{getLadders}}
+getMaxLadder <- function(phylo) {
+  ladders <- getLadders(phylo)
+  length(ladders) > 0 || return(NA)
+  max.ladder <- max(sapply(ladders, length))
+  max.ladder / numberTips(phylo)
+}
+
+#' Proportion of internal nodes in ladder
+#'
+#' A node is in a ladder if one of its children is a tip AND the other is not.
+#' Ladder should be at least of size two.
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return numeric
+#'
+#' @seealso \code{\link{writeLadders}}, \code{\link{extractLadders}},
+#' \code{\link{getLadders}}
+getInLadderNodesProp <- function(phylo) {
+  ladders <- getLadders(phylo)
+  nodes_inladder <- length(unlist(ladders))
+  nodes_inladder / numberNodesInternal(phylo)
+}
+
+#' Proportion of imbalanced nodes
+#'
+#' A node is imbalanced if it has a different number of left and right tips.
+#' Equivalently, the node has a stairecaseness different from 1.
+#'
+#' @param df.nodes dataframe
+#'
+#' @return numeric
+getImbalancedNodesProp <- function(df.nodes) {
+  n.imbalanced <- sum(df.nodes$stair != 1 & !is.na(df.nodes$stair))
+  n.internal <- sum(!df.nodes$istip)
+  n.imbalanced / n.internal
+}
+
+#' Width over depth of a phylogeny
+#'
+#' Depth of a node is the number of edges between the node and the root.
+#' Width at a given depth is the number of nodes at the considered depth.
+#' The width of the phylogeny is the maximum of the widths for all possible
+#' depths.
+#'
+#' @param df.nodes dataframe
+#'
+#' @return numeric
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+getWidthDepthRatio <- function(df.nodes) {
+  width <- max(table(df.nodes$depth))
+  depth <- max(df.nodes$depth)
+  width / depth
+}
+
+#' Sackin score
+#'
+#' Sum of the depth over the phylogeny tips.
+#'
+#' @param df.nodes data.frame
+#'
+#' @return int
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+getSackin <- function(df.nodes) {
+  sum(df.nodes[df.nodes$istip, ]$depth)
+}
+
+#' Maximal consecutive width difference of a phylogeny
+#'
+#' Width at a given depth is the number of nodes at the considered depth.
+#' The width of the phylogeny is the maximum of the widths for all possible
+#' depths.
+#'
+#' @param df.nodes data.frame
+#'
+#' @return numeric
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+getMaxWidthDiff <- function(df.nodes) {
+  table.width <- table(df.nodes$depth)
+  n <- length(table.width)
+  max(abs(table.width[1:n - 1] - table(df.nodes$depth)[2:n]))
+}
+
+#' Topological summary statistics
+#'
+#' There are 8 topological summary statistics listed below.
+#'
+#' @param phylo phylogeny (ape format)
+#' @param df.nodes dataframe
+#'
+#' @return list
+sumStatTopo <- function(phylo, df.nodes) {
+
+  # Set up
+  sumstat <- list(
+    "colless" = NA, "sackin" = NA, "widthdepth" = NA, "deltaw" = NA,
+    "maxladder" = NA, "inladder" = NA, "imbalance" = NA, "stair" = NA
+  )
+
+  # Fill
+  sumstat$colless <- sum(df.nodes$colless, na.rm = TRUE)
+  sumstat$sackin <- getSackin(df.nodes)
+  sumstat$widthdepth <- getWidthDepthRatio(df.nodes)
+  sumstat$deltaw <- getMaxWidthDiff(df.nodes)
+  sumstat$maxladder <- getMaxLadder(phylo)
+  sumstat$inladder <- getInLadderNodesProp(phylo)
+  sumstat$imbalance <- getImbalancedNodesProp(df.nodes)
+  sumstat$stair <- sum(df.nodes$stair, na.rm = TRUE)
+
+  sumstat
 }
 
 #### end ####

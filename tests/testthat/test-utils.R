@@ -21,3 +21,8 @@ test_that("Identify tips correctly.", {
   phylo <- createPhyloCRBD(10, 1, 0)
   expect_equal(isTip(phylo,1:19), 1:19 <= 10)
 })
+
+test_that("Find root correctly.", {
+  phylo <- createPhyloCRBD(10, 1, 0)
+  expect_equal(getRoot(phylo), 11)
+})

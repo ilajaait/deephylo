@@ -1,5 +1,5 @@
 test_that("Node dataframe is initialized correctly.", {
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.nodes <- initializeNodesDf(phylo)
   expect_equal(nrow(df.nodes), 2 * 10 - 1) # expected number of rows
   expect_equal(ncol(df.nodes), 7) # expected number of columns
@@ -7,7 +7,7 @@ test_that("Node dataframe is initialized correctly.", {
 })
 
 test_that("Node dataframe is created correctly.", {
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.nodes <- initializeNodesDf(phylo)
   df.nodes <- fillNodesAll(df.nodes, phylo)
   expect_equal(df.nodes, createNodesDf(phylo))
@@ -16,7 +16,7 @@ test_that("Node dataframe is created correctly.", {
 test_that("Summary statistics are computed correctly.", {
 
   # Colless score
-  phylo <- createPhyloCRBD(3, 1, 0)
+  phylo <- createPhyloCRBD(3, 1, 0.5)
   expect_equal(getNodeColless(phylo, 4), 1) # 2 vs. 1 tip
   expect_equal(getNodeColless(phylo, 5), 0) # 1 vs. 1 tip
   expect_error(getNodeColless(phylo, 3)) # node can't be a tip
@@ -33,7 +33,7 @@ test_that("Summary statistics are computed correctly.", {
 test_that("Fill node dataframe correctly.", {
 
   # Set up
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.nodes <- initializeNodesDf(phylo)
 
   # Check index
@@ -82,7 +82,7 @@ test_that("Fill node dataframe correctly.", {
 })
 
 test_that("Edge dataframe is initialized correctly.", {
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.edges <- initializeEdgesDf(phylo)
   expect_equal(nrow(df.edges), numberEdges(phylo)) # expected number of rows
   expect_equal(ncol(df.edges), 6) # expected number of columns
@@ -90,7 +90,7 @@ test_that("Edge dataframe is initialized correctly.", {
 })
 
 test_that("Edge dataframe is created correctly.", {
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.nodes <- createNodesDf(phylo)
   df.edges <- initializeEdgesDf(phylo)
   df.edges <- fillEdgesAll(df.edges, phylo, df.nodes)
@@ -100,7 +100,7 @@ test_that("Edge dataframe is created correctly.", {
 test_that("Fill edge dataframe correctly.", {
 
   # Set up
-  phylo <- createPhyloCRBD(10, 1, 0)
+  phylo <- createPhyloCRBD(10, 1, 0.5)
   df.edges <- initializeEdgesDf(phylo)
 
   # Check index
@@ -129,4 +129,100 @@ test_that("Fill edge dataframe correctly.", {
   df.edges.new <- initializeEdgesDf(phylo)
   df.edges.new <- fillEdgesAll(df.edges, phylo, df.nodes)
   expect_equal(df.edges, df.edges.new)
+})
+
+test_that("Branch lengths summary statistis are computed correctly.", {
+
+  # Check mean, median and variance
+  expect_equal(
+    getBranchLengthStats(c(1, 1, 1)),
+    list(mean = 1, median = 1, var = 0)
+  )
+  expect_equal(
+    getBranchLengthStats(c(1, 2, 3)),
+    list(mean = 2, median = 2, var = 1)
+  )
+  expect_equal(
+    getBranchLengthStats(c(1, 2, 6)),
+    list(mean = 3, median = 2, var = 7)
+  )
+  expect_equal(
+    getBranchLengthStats(c()),
+    list(mean = NA, median = NA, var = NA)
+  )
+
+  # Check all summary statistics
+  phylo <- createPhyloCRBD(100, 1, 0.5)
+  df.nodes <- createNodesDf(phylo)
+  df.edges <- createEdgesDf(phylo, df.nodes)
+  sumstat.bl <- sumStatsBranchLength(df.edges, phylo)
+  expect_equal(sumstat.bl$height, getHeight(phylo))
+  expect_equal(
+    sumstat.bl$mean.int1 / sumstat.bl$mean.ext,
+    sumstat.bl$mean.intext1
+  )
+  expect_equal(
+    sumstat.bl$median.int1 / sumstat.bl$median.ext,
+    sumstat.bl$median.intext1
+  )
+  expect_equal(
+    sumstat.bl$var.int1 / sumstat.bl$var.ext,
+    sumstat.bl$var.intext1
+  )
+  expect_equal(
+    sumstat.bl$mean.int2 / sumstat.bl$mean.ext,
+    sumstat.bl$mean.intext2
+  )
+  expect_equal(
+    sumstat.bl$mean.int3 / sumstat.bl$mean.ext,
+    sumstat.bl$mean.intext3
+  )
+  expect_equal(length(sumstat.bl), 25)
+})
+
+test_that("Ladders are identified correctly.", {
+  phylo <- createPhyloCRBD(3, 1, 0.5)
+  expect_true(isInLadder(phylo,4)) # root for phylo of 3 tips is in ladder
+  expect_false(isInLadder(phylo,3)) # tip can't be in ladder
+  expect_false(isInLadder(phylo,5)) # root child isn't in ladder (has 2 child)
+  expect_equal(writeLadders(phylo,4,c()), c(4,-1,-1,-1,-1))
+
+  phylo <- createPhyloCRBD(3, 1, 0.5)
+  ladders <- writeLadders(phylo, 4, c())
+  expect_equal(length(unlist(extractLadders(ladders))),0)
+
+  phylo <- createPhyloCRBD(500, 1, 0.5)
+  ladders <- writeLadders(phylo, 501, c())
+  ladders.extracted <- extractLadders(ladders)
+  expect_equal(ladders.extracted, getLadders(phylo))
+  expect_true(getInLadderNodesProp(phylo) <= 1)
+  df.nodes <- createNodesDf(phylo)
+  expect_true(getImbalancedNodesProp(df.nodes) <= 1)
+
+  skip_if(length(ladders.extracted)==0)
+  expect_true(isInLadder(phylo,ladders[which(ladders != -1)][1]))
+  expect_true(isInLadder(phylo,unlist(extractLadders(ladders))[1]))
+  max.ladder <- max(sapply(extractLadders(ladders), length))
+  expect_equal(getMaxLadder(phylo), max.ladder / numberTips(phylo))
+})
+
+test_that("Left and right children identified correctly.", {
+
+  phylo <- createPhyloCRBD(3, 1, 0.5)
+  expect_equal(getChildLeftRight(phylo,3), list(left=NA, right=NA))
+  expect_equal(getChildLeftRight(phylo,4)$right, 5)
+})
+
+test_that("Topological statistics are computed correctly.", {
+  phylo <- createPhyloCRBD(3, 1, 0.5)
+  df.nodes <- createNodesDf(phylo)
+  expect_equal(getWidthDepthRatio(df.nodes), 1)
+  expect_equal(getMaxWidthDiff(df.nodes), 1)
+  expect_equal(getSackin(df.nodes),5)
+
+  phylo <- createPhyloCRBD(50, 1, 0.5)
+  df.nodes <- createNodesDf(phylo)
+  sumstat <- sumStatTopo(phylo, df.nodes)
+  expect_equal(length(sumstat), 8) # 8 statistics
+  expect_equal(is.na(sumstat$maxladder), sumstat$inladder == 0)
 })

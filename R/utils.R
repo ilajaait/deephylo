@@ -66,3 +66,12 @@ getHeight <- function(phylo) {
 isTip <- function(phylo, i){
   i <= numberTips(phylo)
 }
+
+#' Find root of a phylogeny
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return int
+getRoot <- function(phylo){
+  numberTips(phylo) + 1
+}
