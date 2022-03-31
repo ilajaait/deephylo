@@ -5,6 +5,12 @@
 #' @param mu extinction rate
 #'
 #' @return phylogeny (ape format)
+#' @export
+#'
+#' @example n.tips <- 10 # 10 extant species
+#' lambda <- 1 # speciation rate
+#' mu <- 0 # extinction rate
+#' createPhyloCRBD(n.tips, lambda, mu)
 createPhyloCRBD <- function(n.tips, lambda, mu) {
   lambda > mu || stop("Speciation rate inferior to extinction rate.")
   diversitree::trees(

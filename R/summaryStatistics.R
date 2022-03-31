@@ -1,3 +1,90 @@
+#### Exported functions ####
+
+#' Summary statistics of a phylogeny
+#'
+#' Compute 84 summary statistics on the phylogeny.
+#' We split the summary statistics in 3 categories :
+#'   * branch length, 25 summary statistics
+#'   * topological, 8 summary statistics
+#'   * LTT, 51 summary statistics
+#' These summary statistics are listed below.
+#'
+#' Branch length summary statistics:
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   height \tab phylogeny height\cr
+#'   mean.all \tab mean of all branch lengths\cr
+#'   median.all \tab median of all branch lengths\cr
+#'   var.all \tab variance of all branch lengths\cr
+#'   mean.ext \tab mean of external branch lengths\cr
+#'   median.ext \tab median of external branch lengths\cr
+#'   var.ext \tab variance of external branch lengths\cr
+#'   mean.int1 \tab mean of internal branch lengths of part 1\cr
+#'   median.int1 \tab median of internal branch lengths of part 1\cr
+#'   var.int1 \tab variance of internal branch lengths of part 1\cr
+#'   mean.int2 \tab mean of internal branch lengths of part 2\cr
+#'   median.int2 \tab median of internal branch lengths of part 2\cr
+#'   var.int2 \tab variance of internal branch lengths of part 2\cr
+#'   mean.int3 \tab mean of internal branch lengths of part 3\cr
+#'   median.int3 \tab median of internal branch lengths of part 3\cr
+#'   var.int3 \tab variance of internal branch lengths of part 3\cr
+#'   mean.intext1 \tab mean.int1 / mean.ext\cr
+#'   median.int1 \tab median.int1 / median.ext\cr
+#'   var.int1 \tab var.int1 / var.ext\cr
+#'   mean.intext2 \tab mean.int2 / mean.ext\cr
+#'   median.int2 \tab median.int2 / median.ext\cr
+#'   var.int2 \tab var.int2 / var.ext\cr
+#'   mean.intext3 \tab mean.int3 / mean.ext\cr
+#'   median.int3 \tab median.int3 / median.ext\cr
+#'   var.int3 \tab var.int3 / var.ext
+#' }
+#'
+#' Topological summary statistics:
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   colless \tab absolute difference in left and right tips, summed over int.
+#'   nodes\cr
+#'   sackin \tab depth summed over tips\cr
+#'   widthdepth \tab ratio of maximal width over maximal depth\cr
+#'   deltaw \tab maximal consecutive width difference\cr
+#'   maxladder \tab maximal ladder size\cr
+#'   inladder \tab proportion of nodes in ladder\cr
+#'   imbalance \tab proportion of imbalanced nodes (i.e. colless !=0)\cr
+#'   stair \tab ratio of tips on each side summed over internal nodes}
+#'
+#' LTT summary statistics:
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   LTT_slope`i` \tab slope of LTT i-th part in semilog scale (i in \[1,10\])\cr
+#'   LTT_t`i` \tab i-th time coordinate of binned LTT (i in \[1,20\])\cr
+#'   LTT_N`i` \tab i-th lineage coordinate of binned LTT (i in \[1,20\])\cr
+#'   n_tips \tab phylogeny number of tips
+#'   }
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return list
+#' @export
+#'
+#' @examples
+#' phylo <- createPhyloCRBD(100, 1, .1) # create phylogeny with 100 tips
+#' sumStats(phylo) # compute its summary statistics
+sumStats <- function(phylo){
+
+  # Set up dataframes
+  df.nodes <- createNodesDf(phylo)
+  df.edges <- createEdgesDf(phylo, df.nodes)
+
+  # Compute summary statistics
+  sumstat.bl <- sumStatsBranchLength(phylo, df.edges)
+  sumstat.topo <- sumStatsTopo(phylo, df.nodes)
+  sumstat.ltt <- sumStatsLtt(phylo)
+
+  c(sumstat.bl, sumstat.topo, sumstat.ltt)
+}
+
+#### end ####
+
 #### Node data frame ####
 
 #' Create node dataframe
@@ -389,26 +476,7 @@ createEdgesDf <- function(phylo, df.nodes) {
 
 #### end ####
 
-#### Summary statistics ####
-
-#' Compute branch lengths statistics
-#'
-#' Compute the mean, median and variance of a list of branch lengths.
-#'
-#' @param branch_length vector
-#'
-#' @return list
-#'    * `$mean`: branch lengths mean
-#'    * `$median`: branch lengths median
-#'    * `$var`: branch length variance
-getBranchLengthStats <- function(branch_length) {
-  length(branch_length) > 0 || return(list(mean = NA, median = NA, var = NA))
-  list(
-    mean = mean(branch_length),
-    median = stats::median(branch_length),
-    var = stats::var(branch_length)
-  )
-}
+#### Summary statistics: branch length ####
 
 #' Compute branch lengths summary statistics
 #'
@@ -456,7 +524,7 @@ getBranchLengthStats <- function(branch_length) {
 #'    * `$stat.intext1`: `$stat.inti` / `$stat.ext`
 #'
 #' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
-sumStatsBranchLength <- function(df.edges, phylo) {
+sumStatsBranchLength <- function(phylo, df.edges) {
 
   # Set up
   sumstat <- list(
@@ -502,6 +570,72 @@ sumStatsBranchLength <- function(df.edges, phylo) {
   }
 
   sumstat$height <- getHeight(phylo)
+
+  sumstat
+}
+
+#' Compute branch lengths statistics
+#'
+#' Compute the mean, median and variance of a list of branch lengths.
+#'
+#' @param branch_length vector
+#'
+#' @return list
+#'    * `$mean`: branch lengths mean
+#'    * `$median`: branch lengths median
+#'    * `$var`: branch length variance
+getBranchLengthStats <- function(branch_length) {
+  length(branch_length) > 0 || return(list(mean = NA, median = NA, var = NA))
+  list(
+    mean = mean(branch_length),
+    median = stats::median(branch_length),
+    var = stats::var(branch_length)
+  )
+}
+
+##### end ####
+
+#### Summary statistics: topology ####
+
+#' Topological summary statistics
+#'
+#' There are 8 topological summary statistics listed below.
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   colless \tab absolute difference in left and right tips, summed over int.
+#'   nodes\cr
+#'   sackin \tab depth summed over tips\cr
+#'   widthdepth \tab ratio of maximal width over maximal depth\cr
+#'   deltaw \tab maximal consecutive width difference\cr
+#'   maxladder \tab maximal ladder size\cr
+#'   inladder \tab proportion of nodes in ladder\cr
+#'   imbalance \tab proportion of imbalanced nodes (i.e. colless !=0)\cr
+#'   stair \tab ratio of tips on each side summed over internal nodes}
+#'
+#' @param phylo phylogeny (ape format)
+#' @param df.nodes dataframe
+#'
+#' @return list
+#'     the variable listed above can be accessed with `$` + variable name.
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+sumStatsTopo <- function(phylo, df.nodes) {
+
+  # Set up
+  sumstat <- list(
+    "colless" = NA, "sackin" = NA, "widthdepth" = NA, "deltaw" = NA,
+    "maxladder" = NA, "inladder" = NA, "imbalance" = NA, "stair" = NA
+  )
+
+  # Fill
+  sumstat$colless <- sum(df.nodes$colless, na.rm = TRUE)
+  sumstat$sackin <- getSackin(df.nodes)
+  sumstat$widthdepth <- getWidthDepthRatio(df.nodes)
+  sumstat$deltaw <- getMaxWidthDiff(df.nodes)
+  sumstat$maxladder <- getMaxLadder(phylo)
+  sumstat$inladder <- getInLadderNodesProp(phylo)
+  sumstat$imbalance <- getImbalancedNodesProp(df.nodes)
+  sumstat$stair <- sum(df.nodes$stair, na.rm = TRUE)
 
   sumstat
 }
@@ -721,33 +855,121 @@ getMaxWidthDiff <- function(df.nodes) {
   max(abs(table.width[1:n - 1] - table(df.nodes$depth)[2:n]))
 }
 
-#' Topological summary statistics
+#### end ####
+
+#### Summary statistics: LTT ####
+
+#' LTT summary statistics
 #'
-#' There are 8 topological summary statistics listed below.
+#' There are 51 LTT summary statistics listed below.
+#'  \tabular{ll}{
+#'   Variable \tab Description\cr
+#'   LTT_slope`i` \tab slope of LTT i-th part in semilog scale (i in \[1,10\])\cr
+#'   LTT_t`i` \tab i-th time coordinate of binned LTT (i in \[1,20\])\cr
+#'   LTT_N`i` \tab i-th lineage coordinate of binned LTT (i in \[1,20\])\cr
+#'   n_tips \tab phylogeny number of tips
+#'   }
 #'
 #' @param phylo phylogeny (ape format)
-#' @param df.nodes dataframe
 #'
 #' @return list
-sumStatTopo <- function(phylo, df.nodes) {
+#'     the variable listed above can be accessed with `$` + variable name.
+#'
+#' @seealso \href{https://doi.org/10.1371/journal.pcbi.1005416}{Saulnier et al., 2014, PLOS}
+sumStatsLtt <- function(phylo){
+  ltt.coords <- getLttCoords(phylo)
+  ltt.slopes <- getLttSlopes(phylo)
+  c(ltt.coords, ltt.slopes, list(n_tips=numberTips(phylo)))
+}
+
+#' Sample 20 LTT coordinates
+#'
+#' Take 20 points uniformly distributed regarding the number of lineages.
+#' Save LTT coordinates for these 20 points.
+#' Phylogeny needs to be at least to have 20 tips.
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return list
+#'    * `$LTT_coordX` with `coord` either `t` for time or `N` for number of
+#'    lineages and `X` between 1 and 20
+#'    * for instance, `$LTT_N15` is the number of lineages for bin 15 out of 20
+getLttCoords <- function(phylo){
+
+  # Test
+  numberTips(phylo) >= 20 || stop("Phylogeny needs to have at least 20 tips.")
 
   # Set up
-  sumstat <- list(
-    "colless" = NA, "sackin" = NA, "widthdepth" = NA, "deltaw" = NA,
-    "maxladder" = NA, "inladder" = NA, "imbalance" = NA, "stair" = NA
-  )
+  ltt.coord <- ape::ltt.plot.coords(phylo)
+  n_events <- length(ltt.coord[,1])
+  bins <- 1:20 * (n_events %/% 20)
 
-  # Fill
-  sumstat$colless <- sum(df.nodes$colless, na.rm = TRUE)
-  sumstat$sackin <- getSackin(df.nodes)
-  sumstat$widthdepth <- getWidthDepthRatio(df.nodes)
-  sumstat$deltaw <- getMaxWidthDiff(df.nodes)
-  sumstat$maxladder <- getMaxLadder(phylo)
-  sumstat$inladder <- getInLadderNodesProp(phylo)
-  sumstat$imbalance <- getImbalancedNodesProp(df.nodes)
-  sumstat$stair <- sum(df.nodes$stair, na.rm = TRUE)
+  # Get binned coordinates
+  ltt.coord.binned <- ltt.coord[bins,]
 
-  sumstat
+  # Format output
+  ltt.coord.binned <- as.list(ltt.coord.binned)
+  names(ltt.coord.binned) <- lttCoordsNames()
+  ltt.coord.binned
+}
+
+#' Create names for binned LTT coordinate list
+#'
+#' @return vector
+lttCoordsNames <- function() {
+  name.vec <- c()
+  for (coord in c("t", "N")){
+    for (i in 1:20){
+      name <- paste("LTT_", coord, i, sep="")
+      name.vec <- c(name.vec, name)
+    }
+  }
+  name.vec
+}
+
+#' Compute 10 LTT slopes
+#'
+#' Divide the tree in 3 equals part (trough time) and compute the slope for each
+#' part (named slope$p.i). Then do the ratio of:
+#' - slope of the 2nd over the slope of the 1st part
+#' - slope of the 3rd over the slope of the 2nd part
+#'
+#' @param phylo phylogeny (ape format)
+#'
+#' @return list
+getLttSlopes <- function(phylo){
+  numberTips(phylo) >= 20 || stop("Phylogeny needs to have at least 20 tips.")
+  n_split <- 10
+  slopes <- list()
+  coords <- as.data.frame(ape::ltt.plot.coords(phylo))
+  coords["N"] <- log(coords["N"])
+  coords.split <- splitLttCoords(coords, n = n_split)
+  for (i in 1:n_split){
+      split <- coords.split[[i]]
+      name <- paste("LTT_slope", i, sep="")
+      s <- stats::lm(N ~ time, split)$coef[[2]] # compute slope
+      slopes[[name]] <- s # save
+  }
+  slopes
+}
+
+#' Split the LTT coordinates regarding the number of events
+#'
+#' @param coords ltt coordinates (dataframe)
+#' @param n number of splits (int, default n=10)
+#'
+#' @return list
+splitLttCoords <- function(coords, n=10){
+  coords.split <- list()
+  len <- nrow(coords)
+  bounds <- as.integer(seq(1, len, length.out=n+1))
+  for (i in 1:n){
+    inf <- bounds[i] + (i!=1)
+    sup <- bounds[i+1]
+    split <- coords[inf:sup,]
+    coords.split[[i]] <- split
+  }
+  coords.split
 }
 
 #### end ####
