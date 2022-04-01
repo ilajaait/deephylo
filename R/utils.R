@@ -1,23 +1,3 @@
-#' Create a phylogeny under the Constant Rate Birth-Death (CRBD) model
-#'
-#' @param n.tips number of tips
-#' @param lambda speciation rate
-#' @param mu extinction rate
-#'
-#' @return phylogeny (ape format)
-#' @export
-#'
-#' @example n.tips <- 10 # 10 extant species
-#' lambda <- 1 # speciation rate
-#' mu <- 0 # extinction rate
-#' createPhyloCRBD(n.tips, lambda, mu)
-createPhyloCRBD <- function(n.tips, lambda, mu) {
-  lambda > mu || stop("Speciation rate inferior to extinction rate.")
-  diversitree::trees(
-    pars = c(lambda, mu), type = "bd", max.taxa = n.tips, n = 1
-  )[[1]]
-}
-
 #' Compute total number of nodes of a phylogeny
 #'
 #' @param phylo phylogeny (ape format)

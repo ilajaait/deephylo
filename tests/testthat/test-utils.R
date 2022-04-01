@@ -1,9 +1,3 @@
-test_that("Create phylogeny correctly.", {
-  phylo <- createPhyloCRBD(15, 1, 0)
-  expect_equal(numberTips(phylo), 15)
-  expect_error(createPhyloCRBD(10, 0, 1))
-})
-
 test_that("Compute phylogeny number of nodes, tips and edges correctly.", {
   phylo <- createPhyloCRBD(10, 1, 0)
   expect_equal(numberTips(phylo), 10)
