@@ -1,4 +1,4 @@
-#' Create a phylogeny under the CRBD model
+#' Create a phylogeny under the CRBD (Constant Rate Birth Death) model
 #'
 #' @param n.tips number of tips
 #' @param lambda speciation rate
