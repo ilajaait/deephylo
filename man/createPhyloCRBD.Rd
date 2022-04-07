@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulatePhylogenies.R
 \name{createPhyloCRBD}
 \alias{createPhyloCRBD}
-\title{Create a phylogeny under the CRBD (Constant Rate Birth Death) model}
+\title{Create one phylogeny under the Constant Rate Birth-Death (CRBD) model}
 \usage{
 createPhyloCRBD(n.tips, lambda, mu)
 }
@@ -17,7 +17,7 @@ createPhyloCRBD(n.tips, lambda, mu)
 phylogeny (ape format)
 }
 \description{
-Create a phylogeny under the CRBD (Constant Rate Birth Death) model
+Create one phylogeny under the Constant Rate Birth-Death (CRBD) model
 }
 \examples{
 n.tips <- 10 # 10 extant species

@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulatePhylogenies.R
 \name{createPhyloBiSSE}
 \alias{createPhyloBiSSE}
-\title{Create a phylogeny under the BiSSE model}
+\title{Create one phylogeny under the BiSSE model}
 \usage{
 createPhyloBiSSE(n.tips, lambda0, q)
 }

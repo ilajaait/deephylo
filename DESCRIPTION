@@ -22,4 +22,5 @@ Imports:
     phangorn,
     RPANDA,
     stats,
+    svMisc,
     torch
