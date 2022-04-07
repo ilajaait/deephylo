@@ -2,26 +2,28 @@
 % Please edit documentation in R/simulatePhylogenies.R
 \name{createPhyloCRBD}
 \alias{createPhyloCRBD}
-\title{Create one phylogeny under the Constant Rate Birth-Death (CRBD) model}
+\title{Create one phylogeny under the CRBD model}
 \usage{
 createPhyloCRBD(n.tips, params)
 }
 \arguments{
 \item{n.tips}{number of tips}
 
-\item{lambda}{speciation rate}
-
-\item{mu}{extinction rate}
+\item{params}{list
+\itemize{
+\item \verb{$lambda}: speciation rate
+\item \verb{$mu}: extinction rate
+}}
 }
 \value{
 phylogeny (ape format)
 }
 \description{
-Create one phylogeny under the Constant Rate Birth-Death (CRBD) model
+Speciation and extinction rates are constant through time and lineages.
 }
 \examples{
 n.tips <- 10 # 10 extant species
 lambda <- 1 # speciation rate
 mu <- 0 # extinction rate
-createPhyloCRBD(n.tips, lambda, mu)
+createPhyloCRBD(n.tips, list(lambda = lambda, mu = mu))
 }

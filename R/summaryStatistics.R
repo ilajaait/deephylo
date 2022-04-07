@@ -67,7 +67,7 @@
 #' @export
 #'
 #' @examples
-#' phylo <- createPhyloCRBD(100, 1, .1) # create phylogeny with 100 tips
+#' phylo <- createPhyloCRBD(100, list(lambda = 1, mu = 0.1))
 #' sumStats(phylo) # compute its summary statistics
 sumStats <- function(phylo){
 

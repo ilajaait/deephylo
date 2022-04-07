@@ -2,5 +2,6 @@
 
 export(createPhyloBiSSE)
 export(createPhyloCRBD)
+export(simulatePhyloBiSSE)
 export(simulatePhyloCRBD)
 export(sumStats)

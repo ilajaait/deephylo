@@ -42,5 +42,5 @@ We assume 4 constraints:
 n.tips <- 10 # 10 extant species
 lambda0 <- 1 # speciation rate
 q <- 0.1 # transition rate
-createPhyloBiSSE(n.tips, lambda0, q)
+createPhyloBiSSE(n.tips, list(lambda0 = lambda0, q = q))
 }

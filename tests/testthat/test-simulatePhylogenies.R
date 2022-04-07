@@ -33,9 +33,22 @@ test_that("Draw parameters correctly.", {
 
 
 test_that("Simulate phylogeny correctly.", {
+
+  # CRBD
   phylo.list <- simulatePhyloCRBD(10, c(20, 50), c(0.1, 1.0))
   expect_equal(length(phylo.list), 3)
   expect_equal(length(phylo.list$phylo), 10)
   expect_equal(nrow(phylo.list$params), 10)
   expect_equal(ncol(phylo.list$params), 2)
+  expect_equal(names(phylo.list$params), c("lambda", "mu"))
+  expect_true(all(!is.na(phylo.list$params)))
+
+  # BiSSE
+  phylo.list <- simulatePhyloBiSSE(10, c(20, 50), list(lambda0 = c(0.1, 1.0), q = c(0, 0.1)))
+  expect_equal(length(phylo.list), 3)
+  expect_equal(length(phylo.list$phylo), 10)
+  expect_equal(nrow(phylo.list$params), 10)
+  expect_equal(ncol(phylo.list$params), 2)
+  expect_equal(names(phylo.list$params), c("lambda0", "q"))
+  expect_true(all(!is.na(phylo.list$params)))
 })
