@@ -4,7 +4,7 @@
 \alias{createPhyloCRBD}
 \title{Create one phylogeny under the Constant Rate Birth-Death (CRBD) model}
 \usage{
-createPhyloCRBD(n.tips, lambda, mu)
+createPhyloCRBD(n.tips, params)
 }
 \arguments{
 \item{n.tips}{number of tips}

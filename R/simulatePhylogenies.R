@@ -1,8 +1,11 @@
-#' Create one phylogeny under the Constant Rate Birth-Death (CRBD) model
+#' Create one phylogeny under the CRBD model
+#'
+#' Speciation and extinction rates are constant through time and lineages.
 #'
 #' @param n.tips number of tips
-#' @param lambda speciation rate
-#' @param mu extinction rate
+#' @param params list
+#'    * `$lambda`: speciation rate
+#'    * `$mu`: extinction rate
 #'
 #' @return phylogeny (ape format)
 #' @export
@@ -11,7 +14,9 @@
 #' lambda <- 1 # speciation rate
 #' mu <- 0 # extinction rate
 #' createPhyloCRBD(n.tips, lambda, mu)
-createPhyloCRBD <- function(n.tips, lambda, mu) {
+createPhyloCRBD <- function(n.tips, params) {
+  lambda <- params$lambda
+  mu <- params$mu
   lambda > mu || stop("Speciation rate inferior to extinction rate.")
   diversitree::trees(
     pars = c(lambda, mu), type = "bd", max.taxa = n.tips, n = 1
@@ -35,8 +40,9 @@ createPhyloCRBD <- function(n.tips, lambda, mu) {
 #'    * \eqn{q_{10} = q_{01}}
 #'
 #' @param n.tips number of tips
-#' @param lambda0 speciation rate of state 0
-#' @param q transition rate
+#' @param params list
+#'    * `$lambda0`: speciation rate of state 0
+#'    * `$q`: transition rate
 #'
 #' @return phylogeny (ape format)
 #' @export
@@ -45,7 +51,9 @@ createPhyloCRBD <- function(n.tips, lambda, mu) {
 #' lambda0 <- 1 # speciation rate
 #' q <- 0.1 # transition rate
 #' createPhyloBiSSE(n.tips, lambda0, q)
-createPhyloBiSSE <- function(n.tips, lambda0, q) {
+createPhyloBiSSE <- function(n.tips, params) {
+  lambda0 <- params$lambda0
+  q <- params$q
   diversitree::tree.bisse(c(lambda0, 2 * lambda0, 0, 0, q, q), max.taxa = n.tips)
 }
 
@@ -88,7 +96,7 @@ simulatePhyloCRBD <- function(n.phylo, tips.lim, lambda.lim,
   while (length(phylo.list) < n.phylo) {
     params <- drawParamCRBD(lambda.lim)
     n.tips <- drawPhyloSize(tips.lim)
-    phylo <- createPhyloCRBD(n.tips, params$lambda, params$mu)
+    phylo <- createPhyloCRBD(n.tips, params)
     if (sumstat_check) {
       sumstat <- sumStats(phylo)
       if (all(!is.na(sumstat))) {

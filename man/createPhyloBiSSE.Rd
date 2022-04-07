@@ -4,14 +4,16 @@
 \alias{createPhyloBiSSE}
 \title{Create one phylogeny under the BiSSE model}
 \usage{
-createPhyloBiSSE(n.tips, lambda0, q)
+createPhyloBiSSE(n.tips, params)
 }
 \arguments{
 \item{n.tips}{number of tips}
 
-\item{lambda0}{speciation rate of state 0}
-
-\item{q}{transition rate}
+\item{params}{list
+\itemize{
+\item \verb{$lambda0}: speciation rate of state 0
+\item \verb{$q}: transition rate
+}}
 }
 \value{
 phylogeny (ape format)
