@@ -80,6 +80,8 @@ createPhyloBiSSE <- function(n.tips, params) {
 #' @export
 #'
 #' @examples simulatePhyloCRBD(10, c(50, 100), c(0.1, 1.)) # simulate 10 phylo
+#'
+#' @seealso \code{\link{simulatePhyloBiSSE}}
 simulatePhyloCRBD <- function(n.phylo, tips.lim, lambda.lim,
                               sumstat_check = T, verbose = F) {
 
@@ -117,6 +119,8 @@ simulatePhyloCRBD <- function(n.phylo, tips.lim, lambda.lim,
 #' @export
 #'
 #' @examples simulatePhyloBiSSE(10, c(50, 100), list(lambda0 = c(0.1, 1.0), q = c(0, 0.1)))
+#'
+#' @seealso \code{\link{simulatePhyloCRBD}}
 simulatePhyloBiSSE <- function(n.phylo, tips.lim, params.lim,
                                sumstat_check = T, verbose = F) {
 
@@ -132,7 +136,7 @@ simulatePhyloBiSSE <- function(n.phylo, tips.lim, params.lim,
   out
 }
 
-#' Backbone to simulate phylogenies
+#' Backbone function to simulate phylogenies
 #'
 #' Internal function used to simulated phylogenies. Called by \code{\link{simulatePhyloCRBD}}
 #' and \code{\link{simulatePhyloBiSSE}}.
@@ -144,6 +148,10 @@ simulatePhyloBiSSE <- function(n.phylo, tips.lim, params.lim,
 #' @param params.lim parameter boundaries
 #' @param sumstat_check logical
 #' @param verbose logical
+#'
+#' @return list
+#'
+#' @seealso \code{\link{simulatePhyloCRBD}}, \code{\link{simulatePhyloBiSSE}}
 simulatePhylo <- function(createPhylo, drawParam, n.phylo, tips.lim, params.lim,
                           sumstat_check, verbose) {
   # Set up

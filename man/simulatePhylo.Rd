@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulatePhylogenies.R
 \name{simulatePhylo}
 \alias{simulatePhylo}
-\title{Backbone to simulate phylogenies}
+\title{Backbone function to simulate phylogenies}
 \usage{
 simulatePhylo(
   createPhylo,
@@ -29,7 +29,13 @@ simulatePhylo(
 
 \item{verbose}{logical}
 }
+\value{
+list
+}
 \description{
 Internal function used to simulated phylogenies. Called by \code{\link{simulatePhyloCRBD}}
 and \code{\link{simulatePhyloBiSSE}}.
+}
+\seealso{
+\code{\link{simulatePhyloCRBD}}, \code{\link{simulatePhyloBiSSE}}
 }

@@ -41,4 +41,8 @@ returned.
 }
 \examples{
 simulatePhyloBiSSE(10, c(50, 100), list(lambda0 = c(0.1, 1.0), q = c(0, 0.1)))
+
+}
+\seealso{
+\code{\link{simulatePhyloCRBD}}
 }

@@ -41,4 +41,8 @@ returned.
 }
 \examples{
 simulatePhyloCRBD(10, c(50, 100), c(0.1, 1.)) # simulate 10 phylo
+
+}
+\seealso{
+\code{\link{simulatePhyloBiSSE}}
 }
